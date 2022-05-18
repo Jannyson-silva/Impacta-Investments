@@ -1,5 +1,6 @@
 package br.com.lab.impacta.investment.domain.service.impl;
 
+import br.com.lab.impacta.investment.domain.exception.InvestmentAccountIsNotDebitException;
 import br.com.lab.impacta.investment.domain.exception.InvestmentProductNotFoundException;
 import br.com.lab.impacta.investment.domain.model.Investment;
 import br.com.lab.impacta.investment.domain.model.Product;
@@ -40,6 +41,13 @@ public class InvestmentServiceImpl implements InvestmentService {
         investment.verifyProductPrivateOrDefaultForInvestment(accountBalanceVO.getBalance(),
                                                                 product.get());
 
-        return null;
+        boolean isDebited = accountIntegration.debitAccount(accountId, investment.getValue());
+
+        if (!isDebited)
+            throw new InvestmentAccountIsNotDebitException();
+
+        investmentRepository.save(investment);
+
+        return investment;
     }
 }
